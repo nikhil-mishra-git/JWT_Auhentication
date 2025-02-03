@@ -7,12 +7,14 @@
   <link rel="stylesheet" href="/stylesheet/style.css">
 </head>
 <body>
-  <div class="container">
-    <div class="profile-card">
-      <h1>Welcome, <span><%= username %></span></h1>
-      <p><%= email %></p>
-      <p class="welcome-message">We're glad to have you here!</p>
+    <div class="container">
+        <div class="profile-top">
+            <div class="logo">Hello , <span><%= username %></span></div>
+            <a href="/user/logout"><button class="logout-btn">Logout</button></a>
+        </div>
+        <div class="profile-card">
+            <h1>Welcome, <span><%= username %></span></h1>
+        </div>
     </div>
-  </div>
 </body>
 </html>

@@ -2,12 +2,15 @@ const express = require('express');
 const app = express();
 const userRoute = require('./routes/user.routes');
 const database = require('./db');
-const path = require('path')
-
+const path = require('path');
+const cookieParser = require('cookie-parser');
 
 // Body Parser
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
+
+// Use Cokkie Parse
+app.use(cookieParser());
 
 // Setup EJS
 app.set('view engine','ejs');

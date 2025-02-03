@@ -1,96 +1,109 @@
 const userModel = require('../models/user.models');
-const {generateToken} = require('../auth');
+const { generateToken } = require('../auth');
 const bcrypt = require('bcrypt');
 
 
 // Register Controller
-async function handelRegister(req,res){
+async function handleRegister(req, res) {
+    try {
+        const { username, email, password } = req.body;
 
-    try{
-        const {username,email,password} = req.body;
-
-        const saltRounds = 10;
-        const hashPassword = await bcrypt.hash(password, saltRounds);
-
-        const newUser = new userModel({username,email,password: hashPassword});
-        const userSave = await newUser.save();
-        
-        if(!userSave){return res.status(401).json({message : "Server unable to Create User"})};
-        console.log("User Registerd");
-
-        // Create Payload for JWT ( use any field [ id , username , e.t.c.. ] ) 
-        const payload = { username: userSave.username }
-
-        // Generate token at REGISTER
-        // Pass payload for Generate Token
-        const token = generateToken(payload);
-        console.log("Register Token : ",token);
-
-        return res.status(201).json({ message: `${userSave.username} is Created` });
-
-    }catch(error){
-        console.log(error);
-        return res.status(500).json({message : "Internal Server Error"})
-    }   
-
-}
-
-// Login Controller
-async function handelLogin(req,res){
-    try{
-        const {username,password} = req.body;
-        const verifyUser = await userModel.findOne({username});
-
-        if (!verifyUser) {
-            return res.status(401).json({ error: 'Invalid username or password' });
+        // Check if the user already exists
+        const existingUser = await userModel.findOne({ $or: [{ username }, { email }] });
+        if (existingUser) {
+            return res.status(400).json({ message: "Username or Email already exists" });
         }
 
-        const isMatch = await bcrypt.compare(password,verifyUser.password);
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        if (!isMatch) {
-            return res.status(401).json({ error: 'Invalid username or password' });
-        }  
+        // Save new user
+        const newUser = new userModel({ username, email, password: hashedPassword });
+        const savedUser = await newUser.save();
 
-        // Generate token at LOGIN
-        const payload = {
-            username : verifyUser.username
-        }
+        // console.log("User Registered:", savedUser);
+        // Generate JWT token
+        const token = generateToken({ username: savedUser.username });
 
-        // Pass Payload
-        const token = generateToken(payload);
-        console.log("Login Token : ",token);
-        
-        console.log("User Login");
-        // return res.status(201).json({ message: `${verifyUser.username} is Login` });
-        return res.render('profile')
+        // Store token in cookies
+        res.cookie("token", token, { httpOnly: true, secure: false, sameSite: "strict" });
 
-    }catch(error){
-        console.log(error);
-        return res.status(500).json({message : "Internal Server Error"})
-    }   
-}
+        // Redirect to profile page
+        return res.redirect('profile');
 
-//Profile Controller
-async function handelProfileView(req,res){
-    try{
-        const profileData = req.verifyToken;
-        console.log(profileData);
-
-        const profileId = profileData.username;
-        const userprofile =  await userModel.findOne({username:profileId});
-        
-        // return res.status(200).json(userprofile);
-        // return res.render('profile');
-        res.render('profile', { username: userprofile.username, email: userprofile.email });
-
-    }catch(error){
-        console.log(error);
-        return res.status(500).json({message : "Internal Server Error"})
+    } catch (error) {
+        console.error("Error in handleRegister:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 }
 
-module.exports = {
-    handelRegister,
-    handelLogin,
-    handelProfileView
+// Login Controller
+async function handleLogin(req, res) {
+    try {
+        const { username, password } = req.body;
+
+        // Find user by username
+        const existingUser = await userModel.findOne({ username });
+
+        if (!existingUser) {
+            return res.status(401).json({ error: 'Invalid username or password' });
+        }
+
+        // Compare hashed passwords
+        const isMatch = await bcrypt.compare(password, existingUser.password);
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Invalid username or password' });
+        }
+
+        // Generate JWT token
+        const payload = { username: existingUser.username };
+        const token = generateToken(payload);
+
+        // Store token in cookies
+        res.cookie("token", token, { httpOnly: true, secure: false, sameSite: "strict" });
+
+        console.log("User Logged In Successfully");
+
+        // Redirect to profile page
+        return res.redirect('profile');
+
+    } catch (error) {
+        console.error("Error in handleLogin:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
 }
+
+// Profile Controller
+async function handleProfileView(req, res) {
+    try {
+        const profileData = req.verifyToken;
+        // console.log("Profile Data:", profileData);
+
+        const profileId = profileData.username;
+        const userProfile = await userModel.findOne({ username: profileId });
+
+        if (!userProfile) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Render profile page with user data
+        return res.render('profile', { username: userProfile.username, email: userProfile.email });
+
+    } catch (error) {
+        console.error("Error in handleProfileView:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
+// Logout Controller
+async function handleLogout(req,res){
+    res.clearCookie("token",{ httpOnly: true, secure: false, sameSite: "strict" });
+    return res.redirect('/')
+}
+
+module.exports = {
+    handleRegister,
+    handleLogin,
+    handleProfileView,
+    handleLogout
+};

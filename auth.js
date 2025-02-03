@@ -1,44 +1,38 @@
 const jwt = require('jsonwebtoken');
 
-const jwtauthMiddleware = (req,res,next)=>{
-    // JWT Middleware
+// JWT Secret Key (Consider using environment variables for security)
+const JWT_SECRET = 'JWTSECRETKEY';
 
-    // Verify token present in Header or Not
-    const authorization = req.headers.authorization;
-    if(!authorization){return res.status(401).json({ error: 'Token Not Found' })};
+// Middleware for JWT Authentication
+const jwtAuthMiddleware = (req, res, next) => {
+    try {
+        // Debugging: Log received cookies
+        // console.log("Cookies Received:", req.cookies);
 
-    // Extract JWT token from Header
-    const token = (req.headers.authorization.split(" ")[1]);
+        // Extract JWT token from cookies
+        const token = req.cookies?.token;
+        if (!token) {
+            return res.status(401).json({ error: 'Token not found' });
+        }
 
-    try{
-
-        const decodeToken = jwt.verify(token,'JWTSECRETKEY');
-        req.verifyToken = decodeToken;
+        // Verify JWT Token
+        const decodedToken = jwt.verify(token, JWT_SECRET);
+        req.verifyToken = decodedToken;
         next();
 
-    }catch(error){
-        console.error(error);
-        res.status(401).json({ error: 'Invalid token' });
+    } catch (error) {
+        console.error("JWT Verification Error:", error);
+        return res.status(401).json({ error: 'Invalid or expired token' });
     }
+};
 
-}
-
-const generateToken = (userData)=>{
-
-    // Create Token to new Created User
-
+// Function to Generate JWT Token
+const generateToken = (userData) => {
     return jwt.sign(
+        userData, // Payload (user data)
+        JWT_SECRET, // Secret key
+        { expiresIn: '1200s' } // Token expiration (500 seconds)
+    );
+};
 
-        // Head and Payload recieved from Route
-        userData, 
-
-        // Signature Key
-        'JWTSECRETKEY',
-        
-        // Duration of an Token
-        {expiresIn: 50}  //in 500 seconds
-    )
-
-}
-
-module.exports = {jwtauthMiddleware,generateToken}
+module.exports = { jwtAuthMiddleware, generateToken };

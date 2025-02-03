@@ -1,3 +1,8 @@
+* {
+    box-sizing: border-box;
+
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -40,7 +45,7 @@ body {
     cursor: pointer;
 }
 
-.logo{
+.logo {
     font-weight: bold;
     font-size: 1.8rem;
 }
@@ -81,7 +86,7 @@ h2 {
     margin-bottom: 20px;
 }
 
-form{
+form {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 2rem;
     width: 300px;
@@ -105,12 +110,13 @@ form{
     width: 282px;
 }
 
-.login-btn {
+.login-btn,
+.logout-btn {
     background-color: #007bff;
     color: white;
     border: none;
     padding: 10px 15px;
-    width: 100%;
+    /* width: 100%; */
     border-radius: 4px;
     cursor: pointer;
     transition: background 0.3s;
@@ -136,39 +142,37 @@ p a:hover {
 
 /* Profile */
 
-.container {
+
+.profile-top {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    width: 100%;
-  }
-  
-  .profile-card {
+    padding: 1.5rem;
     background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    text-align: center;
-    width: 300px;
-  }
-  
-  .profile-card h1 {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logout-btn {
+    padding: 0.7rem 1.3rem;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+
+.profile-card {
+    height: 70vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-card h1 {
     color: #333;
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
-  
-  .profile-card span {
+    font-size: 3.5rem;
+}
+
+.profile-card span,
+.profile-top .logo span {
     color: #007bff;
-  }
-  
-  .profile-card p {
-    color: #666;
-    margin-bottom: 20px;
-  }
-  
-  .welcome-message {
-    font-size: 16px;
-    color: #777;
-  }
-  
+}
