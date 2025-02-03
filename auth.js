@@ -33,10 +33,10 @@ const generateToken = (userData)=>{
         userData, 
 
         // Signature Key
-        'JWTSECRETKEY' 
+        'JWTSECRETKEY',
         
         // Duration of an Token
-        // {expiresIn: 500}  in 500 seconds
+        {expiresIn: 50}  //in 500 seconds
     )
 
 }

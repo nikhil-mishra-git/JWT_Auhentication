@@ -5,13 +5,18 @@ const {handelRegister,handelLogin,handelProfileView} = require('../controller/us
 
 
 // Register Route
-router.post('/register',handelRegister)
+router.post('/register',handelRegister);
+router.get('/register',(req,res)=>{
+    res.render('register')
+});
 
 // Login Route
 router.post('/login',handelLogin);
+router.get('/login',(req,res)=>{
+    res.render('login')
+});
 
 // See Profile after Login
 router.get('/profile',jwtauthMiddleware,handelProfileView);
-
 
 module.exports = router;

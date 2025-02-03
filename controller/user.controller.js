@@ -61,7 +61,8 @@ async function handelLogin(req,res){
         console.log("Login Token : ",token);
         
         console.log("User Login");
-        return res.status(201).json({ message: `${verifyUser.username} is Login` });
+        // return res.status(201).json({ message: `${verifyUser.username} is Login` });
+        return res.render('profile')
 
     }catch(error){
         console.log(error);
@@ -78,7 +79,9 @@ async function handelProfileView(req,res){
         const profileId = profileData.username;
         const userprofile =  await userModel.findOne({username:profileId});
         
-        return res.status(200).json(userprofile);
+        // return res.status(200).json(userprofile);
+        // return res.render('profile');
+        res.render('profile', { username: userprofile.username, email: userprofile.email });
 
     }catch(error){
         console.log(error);
